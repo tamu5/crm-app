@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>顧客管理 CRM</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-white text-gray-900 min-h-screen" style='font-family:"游ゴシック","Yu Gothic",sans-serif'>
+
+  <!-- ヘッダー・タブ -->
+  <header class="border-b border-gray-200 bg-white sticky top-0 z-10">
+    <div class="flex items-center px-6 h-14 gap-6">
+      <span class="font-bold text-lg" style="color:#c15f3c">CRM</span>
+      <nav class="flex gap-0">
+        <button id="tab-customers" class="tab-btn active-tab px-5 py-4 text-sm font-medium" data-target="view-customers">顧客</button>
+        <button id="tab-pipeline" class="tab-btn px-5 py-4 text-sm font-medium" data-target="view-pipeline">パイプライン</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 顧客ビュー -->
+  <div id="view-customers" data-view="customers" class="flex h-[calc(100vh-56px)]">
+
+    <!-- 左ペイン -->
+    <aside class="flex flex-col bg-gray-50 border-r border-gray-200 flex-shrink-0" style="width:340px">
+      <div class="p-3 flex flex-col gap-2 border-b border-gray-200">
+        <input id="input-search" type="text" placeholder="会社名・担当者名・役職で検索"
+          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none focus:border-orange-400" />
+        <button id="btn-new-customer" class="btn-primary w-full py-2 text-sm rounded-lg">＋ 新規顧客</button>
+      </div>
+      <div id="customer-list" class="flex-1 overflow-y-auto py-2"></div>
+    </aside>
+
+    <!-- 右ペイン -->
+    <main class="flex-1 overflow-y-auto">
+
+      <!-- 空状態 -->
+      <div id="pane-empty" data-pane="empty" class="flex flex-col items-center justify-center h-full text-gray-400">
+        <svg class="w-16 h-16 mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0" />
+        </svg>
+        <p class="text-sm">顧客を選択してください</p>
+      </div>
+
+      <!-- 顧客詳細 -->
+      <div id="pane-detail" data-pane="detail" class="hidden p-6 max-w-3xl">
+        <div class="flex items-start justify-between mb-6">
+          <div>
+            <h2 id="detail-company" class="text-xl font-bold"></h2>
+            <p id="detail-name" class="text-gray-500 text-sm mt-1"></p>
+          </div>
+          <div class="flex gap-2">
+            <button id="btn-edit-customer" class="btn-secondary text-sm px-4 py-2 rounded-lg">編集</button>
+            <button id="btn-delete-customer" class="btn-danger text-sm px-4 py-2 rounded-lg">削除</button>
+          </div>
+        </div>
+        <div id="detail-contacts" class="grid grid-cols-2 gap-3 mb-6 p-4 bg-gray-50 rounded-lg text-sm"></div>
+        <div id="detail-memo-block" class="mb-6 hidden">
+          <p class="text-xs text-gray-400 mb-1">メモ</p>
+          <p id="detail-memo" class="text-sm whitespace-pre-wrap"></p>
+        </div>
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-semibold text-sm text-gray-700">商談</h3>
+          <button id="btn-add-deal" class="btn-primary text-sm px-4 py-2 rounded-lg">＋ 商談を追加</button>
+        </div>
+        <div id="deal-list" class="flex flex-col gap-2"></div>
+      </div>
+
+      <!-- 顧客フォーム -->
+      <div id="pane-customer-form" data-pane="customer-form" class="hidden p-6 max-w-xl">
+        <h2 id="customer-form-title" class="text-lg font-bold mb-5"></h2>
+        <form id="form-customer" class="flex flex-col gap-4">
+          <div>
+            <label class="form-label">会社名 <span class="text-red-500">*</span></label>
+            <input id="input-company" type="text" class="form-input" required />
+          </div>
+          <div>
+            <label class="form-label">担当者名 <span class="text-red-500">*</span></label>
+            <input id="input-name" type="text" class="form-input" required />
+          </div>
+          <div>
+            <label class="form-label">役職</label>
+            <input id="input-title" type="text" class="form-input" />
+          </div>
+          <div>
+            <label class="form-label">メール</label>
+            <input id="input-email" type="email" class="form-input" />
+          </div>
+          <div>
+            <label class="form-label">電話</label>
+            <input id="input-phone" type="text" class="form-input" />
+          </div>
+          <div>
+            <label class="form-label">メモ</label>
+            <textarea id="input-memo" rows="3" class="form-input"></textarea>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="submit" id="btn-save-customer" class="btn-primary px-6 py-2 rounded-lg text-sm">保存</button>
+            <button type="button" id="btn-cancel-customer" class="btn-secondary px-6 py-2 rounded-lg text-sm">キャンセル</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 商談フォーム -->
+      <div id="pane-deal-form" data-pane="deal-form" class="hidden p-6 max-w-xl">
+        <h2 id="deal-form-title" class="text-lg font-bold mb-5"></h2>
+        <form id="form-deal" class="flex flex-col gap-4">
+          <div>
+            <label class="form-label">商談タイトル <span class="text-red-500">*</span></label>
+            <input id="input-deal-title" type="text" class="form-input" required />
+          </div>
+          <div>
+            <label class="form-label">金額（円）</label>
+            <input id="input-deal-amount" type="number" min="0" class="form-input" />
+          </div>
+          <div>
+            <label class="form-label">ステータス</label>
+            <select id="input-deal-status" class="form-input">
+              <option value="lead">見込み</option>
+              <option value="proposal">提案</option>
+              <option value="won">成約</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">フォローアップメモ</label>
+            <textarea id="input-deal-memo" rows="3" class="form-input"></textarea>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="submit" id="btn-save-deal" class="btn-primary px-6 py-2 rounded-lg text-sm">保存</button>
+            <button type="button" id="btn-cancel-deal" class="btn-secondary px-6 py-2 rounded-lg text-sm">キャンセル</button>
+            <button type="button" id="btn-delete-deal" class="btn-danger px-6 py-2 rounded-lg text-sm hidden">削除</button>
+          </div>
+        </form>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- パイプラインビュー -->
+  <div id="view-pipeline" data-view="pipeline" class="hidden h-[calc(100vh-56px)] p-6 overflow-x-auto">
+    <div class="flex gap-5 h-full min-w-max">
+      <div class="pipeline-col flex flex-col" style="width:300px">
+        <div class="pipeline-col-header mb-3 flex items-center gap-2">
+          <span class="font-semibold text-sm text-gray-700">見込み</span>
+          <span id="badge-lead" class="status-badge-lead text-xs px-2 py-0.5 rounded-full"></span>
+        </div>
+        <div id="col-lead" class="flex-1 flex flex-col gap-3 overflow-y-auto"></div>
+      </div>
+      <div class="pipeline-col flex flex-col" style="width:300px">
+        <div class="pipeline-col-header mb-3 flex items-center gap-2">
+          <span class="font-semibold text-sm text-gray-700">提案</span>
+          <span id="badge-proposal" class="status-badge-proposal text-xs px-2 py-0.5 rounded-full"></span>
+        </div>
+        <div id="col-proposal" class="flex-1 flex flex-col gap-3 overflow-y-auto"></div>
+      </div>
+      <div class="pipeline-col flex flex-col" style="width:300px">
+        <div class="pipeline-col-header mb-3 flex items-center gap-2">
+          <span class="font-semibold text-sm text-gray-700">成約</span>
+          <span id="badge-won" class="status-badge-won text-xs px-2 py-0.5 rounded-full"></span>
+        </div>
+        <div id="col-won" class="flex-1 flex flex-col gap-3 overflow-y-auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
