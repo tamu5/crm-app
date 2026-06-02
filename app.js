@@ -3,8 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 'use strict';
 
 const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL ?? 'https://epwfxwcmbaosctsiyjuz.supabase.co',
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? 'sb_publishable_-h9Q6x0jvxLpf7mxY35erA_rYNXIFcX'
+  'https://epwfxwcmbaosctsiyjuz.supabase.co',
+  'sb_publishable_-h9Q6x0jvxLpf7mxY35erA_rYNXIFcX'
 );
 
 // --- State ---
